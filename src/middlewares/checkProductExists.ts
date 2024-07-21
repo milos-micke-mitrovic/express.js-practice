@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { getOneProductService } from "../services/productService";
-import { NotFoundError, InternalServerError } from "../errors/CustomError";
+import {
+  NotFoundError,
+  InternalServerError,
+  CustomError,
+} from "../errors/CustomError";
 
 export const checkProductExists = async (
   req: Request,
@@ -10,12 +14,16 @@ export const checkProductExists = async (
   try {
     const product = await getOneProductService(req.body.productId, req.user.id);
     if (!product) {
-      throw new NotFoundError("Product not found.");
+      return next(new NotFoundError("Product not found."));
     }
     next();
   } catch (error) {
     next(
-      new InternalServerError("An error occurred while checking the product.")
+      error instanceof CustomError
+        ? error
+        : new InternalServerError(
+            "An error occurred while checking the product."
+          )
     );
   }
 };

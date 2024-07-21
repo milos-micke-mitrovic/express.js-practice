@@ -1,5 +1,6 @@
 import prisma from "../models";
 import { comparePasswords, createJWT, hashPassword } from "../utils/authUtils";
+import { NotFoundError, UnauthorizedError } from "../errors/CustomError";
 
 export const createNewUser = async (
   username: string,
@@ -25,11 +26,11 @@ export const signinUser = async (
     },
   });
   if (!user) {
-    throw new Error("User does not exist");
+    throw new NotFoundError("User does not exist");
   }
   const isPasswordValid = await comparePasswords(password, user.password);
   if (!isPasswordValid) {
-    throw new Error("Incorrect password");
+    throw new UnauthorizedError("Incorrect password");
   }
   return createJWT(user);
 };

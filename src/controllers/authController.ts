@@ -1,26 +1,20 @@
 import { Request, Response } from "express";
 import { createNewUser, signinUser } from "../services/authService";
+import { asyncHandler } from "../middlewares/asyncHandler";
+import { sendSuccessResponse } from "../utils/responseUtils";
 
-// Register a new user
-export const register = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const register = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const { username, password } = req.body;
     const token = await createNewUser(username, password);
-    res.status(201).json({ token });
-  } catch (error) {
-    console.error("Error registering user:", error);
-    res.status(500).json({ error: "Internal server error" });
+    sendSuccessResponse(res, 201, { token }, "User registered successfully");
   }
-};
+);
 
-// Sign in an existing user
-export const signin = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const signin = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const { username, password } = req.body;
     const token = await signinUser(username, password);
-    res.status(200).json({ token });
-  } catch (error) {
-    console.error("Error signing in:", error);
-    res.status(401).json({ error: error.message });
+    sendSuccessResponse(res, 200, { token }, "User signed in successfully");
   }
-};
+);

@@ -1,54 +1,51 @@
-// controllers/productController.ts
-import { Request, Response, NextFunction } from "express";
-import * as productService from "../services/productService";
-import { NotFoundError } from "../errors/CustomError";
+import { Request, Response } from "express";
+import {
+  createProductService,
+  updateProductService,
+  getAllProductsService,
+  getOneProductService,
+  deleteProductService,
+} from "../services/productService";
 import { asyncHandler } from "../middlewares/asyncHandler";
-
-export const getAllProducts = asyncHandler(
-  async (req: Request, res: Response): Promise<void> => {
-    const products = await productService.getAllProductsService(req.user.id);
-    res.status(200).json({ data: products });
-  }
-);
-
-export const getOneProduct = asyncHandler(
-  async (req: Request, res: Response): Promise<void> => {
-    const product = await productService.getOneProductService(
-      req.params.id,
-      req.user.id
-    );
-    if (!product) throw new NotFoundError("Product not found.");
-    res.status(200).json({ data: product });
-  }
-);
+import { sendSuccessResponse } from "../utils/responseUtils";
 
 export const createProduct = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
-    const product = await productService.createProductService(
-      req.body.name,
-      req.user.id
-    );
-    res.status(201).json({ data: product });
+    const { name } = req.body;
+    const product = await createProductService(name, req.user.id);
+    sendSuccessResponse(res, 201, product, "Product created successfully");
   }
 );
 
 export const updateProduct = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
-    const product = await productService.updateProductService(
+    const { name } = req.body;
+    const product = await updateProductService(
       req.params.id,
-      req.body.name,
+      name,
       req.user.id
     );
-    res.status(200).json({ data: product });
+    sendSuccessResponse(res, 200, product, "Product updated successfully");
+  }
+);
+
+export const getAllProducts = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    const products = await getAllProductsService(req.user.id);
+    sendSuccessResponse(res, 200, products);
+  }
+);
+
+export const getOneProduct = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    const product = await getOneProductService(req.params.id, req.user.id);
+    sendSuccessResponse(res, 200, product);
   }
 );
 
 export const deleteProduct = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
-    const product = await productService.deleteProductService(
-      req.params.id,
-      req.user.id
-    );
-    res.status(200).json({ data: product });
+    await deleteProductService(req.params.id, req.user.id);
+    sendSuccessResponse(res, 200, null, "Product deleted successfully");
   }
 );

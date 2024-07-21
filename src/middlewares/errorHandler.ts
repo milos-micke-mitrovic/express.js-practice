@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { Prisma } from "@prisma/client";
 import { CustomError } from "../errors/CustomError";
+import { sendErrorResponse } from "../utils/responseUtils";
 
 export const errorHandler = (
   err: CustomError | any,
@@ -11,7 +12,7 @@ export const errorHandler = (
   console.error(err.stack);
 
   if (err instanceof CustomError) {
-    res.status(err.statusCode).json({ message: err.message });
+    sendErrorResponse(res, err.statusCode, err.message);
   } else if (err instanceof Prisma.PrismaClientKnownRequestError) {
     let statusCode = 500;
     let message = "An unexpected error occurred.";
@@ -33,8 +34,8 @@ export const errorHandler = (
         message = err.message;
     }
 
-    res.status(statusCode).json({ status: "error", message });
+    sendErrorResponse(res, statusCode, message);
   } else {
-    res.status(500).json({ message: "Something went wrong" });
+    sendErrorResponse(res, 500, "Something went wrong");
   }
 };

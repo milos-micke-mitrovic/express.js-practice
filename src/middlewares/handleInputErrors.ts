@@ -1,5 +1,6 @@
 import { validationResult } from "express-validator";
 import { Request, Response, NextFunction } from "express";
+import { BadRequestError } from "../errors/CustomError";
 
 export const handleInputErrors = (
   req: Request,
@@ -8,7 +9,11 @@ export const handleInputErrors = (
 ) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    const errorMessages = errors
+      .array()
+      .map((err) => err.msg)
+      .join(", ");
+    throw new BadRequestError(errorMessages);
   }
   next();
 };

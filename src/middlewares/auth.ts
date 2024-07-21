@@ -11,23 +11,21 @@ export const protect = (
   const bearer = req.headers.authorization;
 
   if (!bearer || !bearer.startsWith("Bearer ")) {
-    next(new UnauthorizedError("Not authorized, no token provided"));
-    return;
+    return next(new UnauthorizedError("Not authorized, no token provided"));
   }
 
   const token = bearer.split(" ")[1];
 
   if (!token) {
-    next(new UnauthorizedError("Not authorized, invalid token format"));
-    return;
+    return next(new UnauthorizedError("Not authorized, invalid token format"));
   }
 
   try {
-    const user = jwt.verify(token, JWT_SECRET) as string | jwt.JwtPayload;
+    const user = jwt.verify(token, JWT_SECRET) as jwt.JwtPayload;
     req.user = user;
-    next();
+    return next();
   } catch (error) {
     console.error("Token verification failed:", error);
-    next(new UnauthorizedError("Not authorized, invalid token"));
+    return next(new UnauthorizedError("Not authorized, invalid token"));
   }
 };

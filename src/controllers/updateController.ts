@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import * as updateService from "../services/updateService";
 import { NotFoundError } from "../errors/CustomError";
 import { asyncHandler } from "../middlewares/asyncHandler";
+import { sendSuccessResponse } from "../utils/responseUtils";
 
 export const getOneUpdate = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
@@ -9,21 +10,21 @@ export const getOneUpdate = asyncHandler(
     if (!update) {
       throw new NotFoundError("Update not found.");
     }
-    res.status(200).json({ data: update });
+    sendSuccessResponse(res, 200, update);
   }
 );
 
 export const getAllUpdates = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
     const updates = await updateService.getAllUpdatesService(req.user.id);
-    res.status(200).json({ data: updates });
+    sendSuccessResponse(res, 200, updates);
   }
 );
 
 export const createUpdate = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
     const update = await updateService.createUpdateService(req.body);
-    res.status(201).json({ data: update });
+    sendSuccessResponse(res, 201, update, "Update created successfully.");
   }
 );
 
@@ -36,7 +37,7 @@ export const updateUpdate = asyncHandler(
     if (!update) {
       throw new NotFoundError("Update not found.");
     }
-    res.status(200).json({ data: update });
+    sendSuccessResponse(res, 200, update, "Update updated successfully.");
   }
 );
 
@@ -46,8 +47,6 @@ export const deleteUpdate = asyncHandler(
     if (!update) {
       throw new NotFoundError("Update not found.");
     }
-    res
-      .status(200)
-      .json({ message: "Update deleted successfully.", data: update });
+    sendSuccessResponse(res, 200, update, "Update deleted successfully.");
   }
 );

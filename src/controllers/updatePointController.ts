@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import {
   createUpdatePointService,
   deleteUpdatePointService,
@@ -6,45 +6,54 @@ import {
   getOneUpdatePointService,
   updateUpdatePointService,
 } from "../services/updatePointService";
-import { NotFoundError, InternalServerError } from "../errors/CustomError";
+import { NotFoundError } from "../errors/CustomError";
 import { asyncHandler } from "../middlewares/asyncHandler";
+import { sendSuccessResponse } from "../utils/responseUtils";
 
 export const getOneUpdatePoint = asyncHandler(
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  async (req: Request, res: Response): Promise<void> => {
     const updatePoint = await getOneUpdatePointService(req.params.id);
-
     if (!updatePoint) {
       throw new NotFoundError("Update point not found.");
     }
-
-    res.status(200).json({ data: updatePoint });
+    sendSuccessResponse(res, 200, updatePoint);
   }
 );
 
 export const getAllUpdatePoints = asyncHandler(
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  async (req: Request, res: Response): Promise<void> => {
     const updatePoints = await getAllUpdatePointsService(req.user.id);
-    res.status(200).json({ data: updatePoints });
+    sendSuccessResponse(res, 200, updatePoints);
   }
 );
 
 export const createUpdatePoint = asyncHandler(
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  async (req: Request, res: Response): Promise<void> => {
     const updatePoint = await createUpdatePointService(req.body);
-    res.status(201).json({ data: updatePoint });
+    sendSuccessResponse(
+      res,
+      201,
+      updatePoint,
+      "Update point created successfully."
+    );
   }
 );
 
 export const updateUpdatePoint = asyncHandler(
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  async (req: Request, res: Response): Promise<void> => {
     const updatePoint = await updateUpdatePointService(req.params.id, req.body);
-    res.status(200).json({ data: updatePoint });
+    sendSuccessResponse(
+      res,
+      200,
+      updatePoint,
+      "Update point updated successfully."
+    );
   }
 );
 
 export const deleteUpdatePoint = asyncHandler(
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  async (req: Request, res: Response): Promise<void> => {
     await deleteUpdatePointService(req.params.id);
-    res.status(200).json({ message: "Update point deleted successfully." });
+    sendSuccessResponse(res, 200, null, "Update point deleted successfully.");
   }
 );
